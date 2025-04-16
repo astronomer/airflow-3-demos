@@ -1,0 +1,6 @@
+# Apache Airflow® 3 Demos
+
+This repository contains demos made by the DevRel team for Airflow 3. The demos are located on different branches:
+
+- [`introducing-apache-airflow-3-0`](https://github.com/astronomer/airflow-3-demos/tree/introducing-apache-airflow-3-0): This branch contains the demo for the [Introducing Apache Airflow® 3.0 webinar](https://www.astronomer.io/events/webinars/introducing-apache-airflow-3-0-video/).
+- [`daily-reality-tunnel`](https://github.com/astronomer/airflow-3-demos/tree/daily-reality-tunnel): This branch contains the demo for the Daily Reality Tunnel Newsletter pipeline.
