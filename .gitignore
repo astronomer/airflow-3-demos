@@ -1,0 +1,5 @@
+*__pycache__
+.env
+airflow_settings.yaml
+plugins
+dags
