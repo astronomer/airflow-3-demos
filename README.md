@@ -5,7 +5,7 @@ This repository contains the demo code for the [Introducing Apache Airflow® 3.0
 
 ## Personalized Newsletter pipeline
 
-![Personalized newsletter pipeline architecture diagram](/src/personalized_newsletter/architecture_diagram.png)
+![Personalized newsletter pipeline architecture diagram](/src/personalized_newsletter_architecture_diagram.png)
 
 ## Syntax examples
 
