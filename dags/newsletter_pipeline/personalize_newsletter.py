@@ -20,7 +20,7 @@ OBJECT_STORAGE_PATH_NEWSLETTER = os.getenv(
 OBJECT_STORAGE_PATH_USER_INFO = os.getenv(
     "OBJECT_STORAGE_PATH_USER_INFO",
     default="include/user_data",
-)  
+)
 
 SYSTEM_PROMPT = (
     "You are {favorite_sci_fi_character} "
@@ -60,6 +60,7 @@ def _get_lat_long(location):
         "retries": 2,
         "retry_delay": duration(minutes=3),
     },
+    tags=["newsletter_pipeline"],
 )
 def personalize_newsletter():
     @task
@@ -71,25 +72,25 @@ def personalize_newsletter():
         object_storage_path = ObjectStoragePath(
             f"{OBJECT_STORAGE_SYSTEM}://" f"{OBJECT_STORAGE_PATH_USER_INFO}",
             conn_id=OBJECT_STORAGE_CONN_ID,
-        )  
+        )
 
         user_info = []
         for file in object_storage_path.iterdir():
             if file.is_file() and file.suffix == ".json":
 
-                bytes = file.read_block(offset=0, length=None)  
+                bytes = file.read_block(offset=0, length=None)
 
                 user_info.append(json.loads(bytes))
 
-        return user_info  
+        return user_info
 
-    _get_user_info = get_user_info()  
+    _get_user_info = get_user_info()
 
     @task(max_active_tis_per_dag=1, retries=4)
-    def get_weather_info(user: dict) -> dict:  
+    def get_weather_info(user: dict) -> dict:
         import requests
 
-        lat, long = _get_lat_long(user["location"])  
+        lat, long = _get_lat_long(user["location"])
         r = requests.get(_WEATHER_URL.format(lat=lat, long=long))
         user["weather"] = r.json()
 
@@ -97,11 +98,11 @@ def personalize_newsletter():
 
     _get_weather_info = get_weather_info.expand(user=_get_user_info)
 
-    @task(max_active_tis_per_dag=16)  
+    @task(max_active_tis_per_dag=16)
     def create_personalized_quote(
         system_prompt,
         user,
-        **context,  
+        **context,
     ):
         import re
 
@@ -110,34 +111,34 @@ def personalize_newsletter():
             OpenAIHook,
         )
 
-        my_openai_hook = OpenAIHook(conn_id="my_openai_conn")  
-        client = my_openai_hook.get_conn()  
+        my_openai_hook = OpenAIHook(conn_id="my_openai_conn")
+        client = my_openai_hook.get_conn()
 
         id = user["id"]
         name = user["name"]
         motivation = user["motivation"]
-        favorite_sci_fi_character = user["favorite_sci_fi_character"]  
-        series = favorite_sci_fi_character.split(" (")[1].replace(")", "")  
+        favorite_sci_fi_character = user["favorite_sci_fi_character"]
+        series = favorite_sci_fi_character.split(" (")[1].replace(")", "")
         date = context["dag_run"].run_after.strftime("%Y-%m-%d")
 
         object_storage_path = ObjectStoragePath(
             f"{OBJECT_STORAGE_SYSTEM}://{OBJECT_STORAGE_PATH_NEWSLETTER}",
             conn_id=OBJECT_STORAGE_CONN_ID,
-        )  
+        )
 
         date_newsletter_path = object_storage_path / f"{date}_newsletter.txt"
 
         newsletter_content = date_newsletter_path.read_text()
 
-        quotes = re.findall(r'\d+\.\s+"([^"]+)"', newsletter_content)  
+        quotes = re.findall(r'\d+\.\s+"([^"]+)"', newsletter_content)
 
         system_prompt = system_prompt.format(
             favorite_sci_fi_character=favorite_sci_fi_character,
             motivation=motivation,
             name=name,
             series=series,
-        )  
-        user_prompt = "The quotes to modify are:\n" + "\n".join(quotes)  
+        )
+        user_prompt = "The quotes to modify are:\n" + "\n".join(quotes)
 
         completion = client.chat.completions.create(
             model="gpt-4o",
@@ -151,9 +152,9 @@ def personalize_newsletter():
                     "content": user_prompt,
                 },
             ],
-        )  
+        )
 
-        generated_response = completion.choices[0].message.content  
+        generated_response = completion.choices[0].message.content
 
         return {
             "user_id": id,
@@ -162,9 +163,7 @@ def personalize_newsletter():
 
     _create_personalized_quote = create_personalized_quote.partial(
         system_prompt=SYSTEM_PROMPT
-    ).expand(
-        user=_get_user_info
-    )  
+    ).expand(user=_get_user_info)
 
     @task
     def combine_information(
@@ -183,7 +182,9 @@ def personalize_newsletter():
         personalized_quotes=_create_personalized_quote,
     )
 
-    @task
+    @task(
+        outlets=[Asset("personalized_newsletter")],
+    )
     def create_personalized_newsletter(
         user: list[dict],
         **context: dict,

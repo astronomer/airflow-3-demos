@@ -11,7 +11,7 @@ OBJECT_STORAGE_PATH_NEWSLETTER = os.getenv(
 )
 
 
-@asset(schedule="@daily")
+@asset(schedule="@daily", tags=["newsletter_pipeline"])
 def raw_zen_quotes() -> list[dict]:
     """
     Extracts a random set of quotes.
@@ -24,7 +24,7 @@ def raw_zen_quotes() -> list[dict]:
     return quotes
 
 
-@asset(schedule=[raw_zen_quotes])
+@asset(schedule=[raw_zen_quotes], tags=["newsletter_pipeline"])
 def selected_quotes(context: dict) -> dict:
     """
     Transforms the extracted raw_zen_quotes.
@@ -58,7 +58,7 @@ def selected_quotes(context: dict) -> dict:
 
 
 @asset(
-    schedule=[selected_quotes],
+    schedule=[selected_quotes], tags=["newsletter_pipeline"]
 )
 def formatted_newsletter(context: dict) -> None:
     """

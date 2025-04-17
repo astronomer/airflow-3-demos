@@ -39,17 +39,6 @@ SYSTEM_PROMPT = (
     "The quote should be between 200 and 500 characters long."
 )
 
-# Configure the SQS queue trigger
-
-SQS_QUEUE_URL = os.getenv(
-    "SQS_QUEUE_URL", default="https://sqs.<region>.amazonaws.com/<account>/<queue>"
-)
-
-trigger = MessageQueueTrigger(queue=SQS_QUEUE_URL)
-sqs_asset = Asset(
-    "sqs_queue_asset", watchers=[AssetWatcher(name="sqs_watcher", trigger=trigger)]
-)
-
 
 def _get_lat_long(location):
     import time
@@ -67,6 +56,18 @@ def _get_lat_long(location):
     )
 
 
+# Configure the SQS queue trigger
+
+SQS_QUEUE_URL = os.getenv(
+    "SQS_QUEUE_URL", default="https://sqs.<region>.amazonaws.com/<account>/<queue>"
+)
+
+trigger = MessageQueueTrigger(queue=SQS_QUEUE_URL)
+sqs_asset = Asset(
+    "sqs_queue_asset", watchers=[AssetWatcher(name="sqs_watcher", trigger=trigger)]
+)
+
+
 @dag(
     start_date=datetime(2025, 3, 1),
     schedule=[sqs_asset],
@@ -74,6 +75,7 @@ def _get_lat_long(location):
         "retries": 2,
         "retry_delay": duration(minutes=3),
     },
+    tags=["newsletter_pipeline"],
 )
 def inference_newsletter():
     @task
@@ -82,9 +84,9 @@ def inference_newsletter():
         for event in triggering_asset_events:
             user_info = process_asset_event(event)
 
-        return user_info  
+        return user_info
 
-    _get_user_info = get_user_info()  
+    _get_user_info = get_user_info()
 
     @task(max_active_tis_per_dag=1, retries=4)
     def get_weather_info(user: dict) -> dict:
