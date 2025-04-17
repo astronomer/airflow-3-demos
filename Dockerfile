@@ -1,1 +1,1 @@
-FROM astrocrpublic.azurecr.io/runtime-dev:3.0-1-nightly202504150001
+FROM air.astronomer.io/runtime-dev:3.0-1-nightly202504150001

@@ -1,8 +1,11 @@
 import os
 
 from airflow.decorators import task
-from airflow.sdk import dag, Asset
+from airflow.sdk import dag, Asset, AssetWatcher
+from airflow.providers.common.messaging.triggers.msg_queue import MessageQueueTrigger
 from pendulum import datetime, duration
+
+from include.utils import process_asset_event
 
 _WEATHER_URL = (
     "https://api.open-meteo.com/v1/forecast?"
@@ -20,7 +23,7 @@ OBJECT_STORAGE_PATH_NEWSLETTER = os.getenv(
 OBJECT_STORAGE_PATH_USER_INFO = os.getenv(
     "OBJECT_STORAGE_PATH_USER_INFO",
     default="include/user_data",
-)  
+)
 
 SYSTEM_PROMPT = (
     "You are {favorite_sci_fi_character} "
@@ -53,9 +56,21 @@ def _get_lat_long(location):
     )
 
 
+# Configure the SQS queue trigger
+
+SQS_QUEUE_URL = os.getenv(
+    "SQS_QUEUE_URL", default="https://sqs.<region>.amazonaws.com/<account>/<queue>"
+)
+
+trigger = MessageQueueTrigger(queue=SQS_QUEUE_URL)
+sqs_asset = Asset(
+    "sqs_queue_asset", watchers=[AssetWatcher(name="sqs_watcher", trigger=trigger)]
+)
+
+
 @dag(
     start_date=datetime(2025, 3, 1),
-    schedule=[Asset("formatted_newsletter")],
+    schedule=(Asset("formatted_newsletter") | sqs_asset),
     default_args={
         "retries": 2,
         "retry_delay": duration(minutes=3),
@@ -63,33 +78,51 @@ def _get_lat_long(location):
 )
 def personalize_newsletter():
     @task
-    def get_user_info() -> list[dict]:
+    def get_user_info(**context) -> list[dict]:
         import json
 
-        from airflow.io.path import ObjectStoragePath
+        asset_event_name = None
 
-        object_storage_path = ObjectStoragePath(
-            f"{OBJECT_STORAGE_SYSTEM}://" f"{OBJECT_STORAGE_PATH_USER_INFO}",
-            conn_id=OBJECT_STORAGE_CONN_ID,
-        )  
+        triggering_asset_events = context["triggering_asset_events"]
+        for asset_event in triggering_asset_events:
+            asset_event_name = asset_event.name
+            asset_extra = asset_event.extra
 
-        user_info = []
-        for file in object_storage_path.iterdir():
-            if file.is_file() and file.suffix == ".json":
+            print("The triggering asset event is: ", asset_event_name)
 
-                bytes = file.read_block(offset=0, length=None)  
 
-                user_info.append(json.loads(bytes))
+        if asset_event_name == "sqs_queue_asset":
+            print("Triggered by SQS queue asset...")
+            print("Processing the message from the SQS queue: ", asset_extra)
+            user_info = process_asset_event(asset_extra) # ToDo: update for RC3
 
-        return user_info  
+        else:
+            print("Triggered by formatted_newsletter asset...")
+            print("Creating newsletters for all subscribers...")
+            from airflow.io.path import ObjectStoragePath
 
-    _get_user_info = get_user_info()  
+            object_storage_path = ObjectStoragePath(
+                f"{OBJECT_STORAGE_SYSTEM}://" f"{OBJECT_STORAGE_PATH_USER_INFO}",
+                conn_id=OBJECT_STORAGE_CONN_ID,
+            )
+
+            user_info = []
+            for file in object_storage_path.iterdir():
+                if file.is_file() and file.suffix == ".json":
+
+                    bytes = file.read_block(offset=0, length=None)
+
+                    user_info.append(json.loads(bytes))
+
+        return user_info
+
+    _get_user_info = get_user_info()
 
     @task(max_active_tis_per_dag=1, retries=4)
-    def get_weather_info(user: dict) -> dict:  
+    def get_weather_info(user: dict) -> dict:
         import requests
 
-        lat, long = _get_lat_long(user["location"])  
+        lat, long = _get_lat_long(user["location"])
         r = requests.get(_WEATHER_URL.format(lat=lat, long=long))
         user["weather"] = r.json()
 
@@ -97,11 +130,11 @@ def personalize_newsletter():
 
     _get_weather_info = get_weather_info.expand(user=_get_user_info)
 
-    @task(max_active_tis_per_dag=16)  
+    @task(max_active_tis_per_dag=16)
     def create_personalized_quote(
         system_prompt,
         user,
-        **context,  
+        **context,
     ):
         import re
 
@@ -110,34 +143,34 @@ def personalize_newsletter():
             OpenAIHook,
         )
 
-        my_openai_hook = OpenAIHook(conn_id="my_openai_conn")  
-        client = my_openai_hook.get_conn()  
+        my_openai_hook = OpenAIHook(conn_id="my_openai_conn")
+        client = my_openai_hook.get_conn()
 
         id = user["id"]
         name = user["name"]
         motivation = user["motivation"]
-        favorite_sci_fi_character = user["favorite_sci_fi_character"]  
-        series = favorite_sci_fi_character.split(" (")[1].replace(")", "")  
+        favorite_sci_fi_character = user["favorite_sci_fi_character"]
+        series = favorite_sci_fi_character.split(" (")[1].replace(")", "")
         date = context["dag_run"].run_after.strftime("%Y-%m-%d")
 
         object_storage_path = ObjectStoragePath(
             f"{OBJECT_STORAGE_SYSTEM}://{OBJECT_STORAGE_PATH_NEWSLETTER}",
             conn_id=OBJECT_STORAGE_CONN_ID,
-        )  
+        )
 
         date_newsletter_path = object_storage_path / f"{date}_newsletter.txt"
 
         newsletter_content = date_newsletter_path.read_text()
 
-        quotes = re.findall(r'\d+\.\s+"([^"]+)"', newsletter_content)  
+        quotes = re.findall(r'\d+\.\s+"([^"]+)"', newsletter_content)
 
         system_prompt = system_prompt.format(
             favorite_sci_fi_character=favorite_sci_fi_character,
             motivation=motivation,
             name=name,
             series=series,
-        )  
-        user_prompt = "The quotes to modify are:\n" + "\n".join(quotes)  
+        )
+        user_prompt = "The quotes to modify are:\n" + "\n".join(quotes)
 
         completion = client.chat.completions.create(
             model="gpt-4o",
@@ -151,9 +184,9 @@ def personalize_newsletter():
                     "content": user_prompt,
                 },
             ],
-        )  
+        )
 
-        generated_response = completion.choices[0].message.content  
+        generated_response = completion.choices[0].message.content
 
         return {
             "user_id": id,
@@ -162,9 +195,7 @@ def personalize_newsletter():
 
     _create_personalized_quote = create_personalized_quote.partial(
         system_prompt=SYSTEM_PROMPT
-    ).expand(
-        user=_get_user_info
-    )  
+    ).expand(user=_get_user_info)
 
     @task
     def combine_information(
