@@ -12,9 +12,14 @@ def dag_versioning_example():
     def print_world():
         print("Hello, Airflow!")
 
+    @task 
+    def new_task():
+        print("New task!")
+
     chain(
         print_hello(),
-        print_world()
+        print_world(),
+        new_task(),
     )
 
 

@@ -19,8 +19,9 @@ from pendulum import datetime
 @dag(
     start_date=datetime(2025, 4, 1),
     schedule="@daily",
+    tags=["syntax_examples"],
 )
-def complex_dag_structure():
+def ui_showcase_dag():
 
     start = EmptyOperator(task_id="start")
 
@@ -116,7 +117,8 @@ def complex_dag_structure():
 
     @task 
     def _end():
-        print(10/0)
+        #print(10/0)
+        pass
 
     end = _end()
 
@@ -156,4 +158,4 @@ def complex_dag_structure():
 
 
 # Calling the DAG function will instantiate the DAG
-complex_dag_structure()
+ui_showcase_dag()

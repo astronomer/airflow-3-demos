@@ -1,6 +1,5 @@
 """
-Code structure of the asset-oriented approach
-
+Code structure of the asset-oriented approach - simple example
 """
 
 from airflow.sdk import asset

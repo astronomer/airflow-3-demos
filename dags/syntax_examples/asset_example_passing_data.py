@@ -1,5 +1,5 @@
 """
-Code structure of the asset-oriented approach
+Code structure of the asset-oriented approach - passing data between assets
 
 Simple ETL pipeline created using 3 assets.
 Each asset defines one dag with one task that materializes the asset.
