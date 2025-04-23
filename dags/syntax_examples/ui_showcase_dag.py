@@ -20,6 +20,7 @@ from pendulum import datetime
     start_date=datetime(2025, 4, 1),
     schedule="@daily",
     tags=["syntax_examples"],
+    params={"fail_task": False},
 )
 def ui_showcase_dag():
 
@@ -115,9 +116,10 @@ def ui_showcase_dag():
 
     mlops_obj = mlops()
 
-    @task 
-    def _end():
-        #print(10/0)
+    @task(outlets=[Asset("my_report")])
+    def _end(**context):
+        if context["params"]["fail_task"]:
+            print(10/0)
         pass
 
     end = _end()
