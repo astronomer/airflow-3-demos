@@ -1,7 +1,7 @@
 from airflow.sdk import dag, task, chain
+from pendulum import datetime
 
-
-@dag(tags=["syntax_examples"])
+@dag(schedule="@daily", start_date=datetime(2025, 1, 1), tags=["syntax_examples"])
 def dag_versioning_example():
 
     @task
@@ -12,11 +12,11 @@ def dag_versioning_example():
     def print_world():
         print("Hello, Airflow!")
 
-    # @task 
+    # @task
     # def my_other_task():
     #     print("My other task!")
 
-    # @task 
+    # @task
     # def new_task():
     #     print("New task!")
 

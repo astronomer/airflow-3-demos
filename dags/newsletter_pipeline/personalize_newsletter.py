@@ -57,7 +57,7 @@ def _get_lat_long(location):
 # Configure the SQS queue trigger
 
 SQS_QUEUE_URL = os.getenv(
-    "SQS_QUEUE_URL", default="https://sqs.<region>.amazonaws.com/<account>/<queue>"
+    "SQS_QUEUE_URL", default="https://sqs.region.amazonaws.com/account/queue"
 )
 
 trigger = MessageQueueTrigger(
