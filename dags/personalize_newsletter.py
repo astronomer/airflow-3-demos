@@ -72,7 +72,7 @@ sqs_asset = Asset(
     start_date=datetime(2025, 3, 1),
     schedule=(Asset("formatted_newsletter") | sqs_asset),
     default_args={
-        "retries": 2,
+        "retries": 0,
         "retry_delay": duration(minutes=3),
     },
 )
@@ -118,7 +118,7 @@ def personalize_newsletter():
 
     _get_user_info = get_user_info()
 
-    @task(max_active_tis_per_dag=1, retries=4)
+    @task(max_active_tis_per_dag=1, retries=4, pool="weather_api")
     def get_weather_info(user: dict) -> dict:
         import requests
 
@@ -137,16 +137,15 @@ def personalize_newsletter():
         **context,
     ):
         import re
-
+        import json
         from airflow.io.path import ObjectStoragePath
-        from airflow.providers.openai.hooks.openai import (
-            OpenAIHook,
-        )
+        from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 
-        my_openai_hook = OpenAIHook(conn_id="my_openai_conn")
-        client = my_openai_hook.get_conn()
+        aws_hook = AwsBaseHook(aws_conn_id="aws_default", client_type="bedrock-runtime")
+        session = aws_hook.get_session(region_name="us-east-1")
+        bedrock = session.client("bedrock-runtime", region_name="us-east-1")
 
-        id = user["id"]
+        user_id = user["id"]
         name = user["name"]
         motivation = user["motivation"]
         favorite_sci_fi_character = user["favorite_sci_fi_character"]
@@ -164,7 +163,7 @@ def personalize_newsletter():
 
         quotes = re.findall(r'\d+\.\s+"([^"]+)"', newsletter_content)
 
-        system_prompt = system_prompt.format(
+        formatted_system_prompt = system_prompt.format(
             favorite_sci_fi_character=favorite_sci_fi_character,
             motivation=motivation,
             name=name,
@@ -172,24 +171,25 @@ def personalize_newsletter():
         )
         user_prompt = "The quotes to modify are:\n" + "\n".join(quotes)
 
-        completion = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt,
-                },
-            ],
-        )
 
-        generated_response = completion.choices[0].message.content
+        # Build the request for the model
+        body = {
+            "prompt": f"\n\nHuman: {formatted_system_prompt}\n\n{user_prompt}\n\nAssistant:",
+            "max_tokens_to_sample": 1024,
+            "temperature": 0.7,
+            "anthropic_version": "bedrock-2023-05-31",
+        }
+
+        response = bedrock.invoke_model(
+            modelId="anthropic.claude-v2",
+            body=json.dumps(body),
+            accept="application/json",
+            contentType="application/json",
+        )
+        generated_response = json.loads(response["body"].read())["completion"]
 
         return {
-            "user_id": id,
+            "user_id": user_id,
             "personalized_quote": generated_response,
         }
 
