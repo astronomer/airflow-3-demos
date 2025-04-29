@@ -40,7 +40,7 @@ Run this Airflow project without installing anything locally.
 Download the [Astro CLI](https://docs.astronomer.io/astro/cli/install-cli) to run Airflow locally in Docker. `astro` is the only package you will need to install.
 
 1. Run `git clone -b airflow-3-mars-demo --single-branch https://github.com/astronomer/airflow-3-demos.git && cd airflow-3-demos` on your computer to create a local clone of this repository, and to go into that folder.
-2. Install the Astro CLI by following the steps in the [Astro CLI documentation](https://docs.astronomer.io/astro/cli/install-cli). Docker Desktop/Docker Engine is a prerequisite, but you don't need in-depth Docker knowledge to run Airflow with the Astro CLI.
+2. Install the Astro CLI by following the steps in the [Astro CLI documentation](https://docs.astronomer.io/astro/cli/install-cli). You don't need in-depth Docker knowledge to run Airflow with the Astro CLI.
 3. Run `astro dev init` in your cloned repository.
 4. Run `astro dev start` in your cloned repository.
 5. After your Astro project has started. View the Airflow UI at `localhost:8080`. NOTE: Safari is not currently supported by the Airflow UI. If it automatically opens in Safari, close the tab, and open in Chrome. 
