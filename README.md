@@ -1,7 +1,7 @@
 Overview
 ========
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Welcome to the Mars Probe Demo! This demo will allow you to walk through the UI, run backfills, test DAG versioning, and simulate remote execution. This demo is self-contained, so there is not any actual remote connections, or other external resources needed. 
 
 Project Contents
 ================
@@ -17,29 +17,32 @@ Your Astro project contains the following files and folders:
 - plugins: Add custom or community plugins for your project to this file. It is empty by default.
 - airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
 
-Deploy Your Project Locally
-===========================
+Setting Up
+==========
 
-Start Airflow on your local machine by running 'astro dev start'.
+### Option 1: Use GitHub Codespaces
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+Run this Airflow project without installing anything locally.
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+1. Fork this repository.
+2. Create a new GitHub Codespaces project on your fork. Make sure it uses at least 4 cores!
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+    ![Fork repo and create a Codespaces project](src/fork_and_codespaces.png)
+3. Run this command in the Codespaces terminal: `bash ./.devcontainer/post_creation_script.sh`.
+4. The Astro CLI will automatically start up all necessary Airflow components as well as the Streamlit app. This can take a few minutes. 
+5. Once the Airflow project has started, access the Airflow UI by clicking on the **Ports** tab and opening the forward URL for port 8080.
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+    ![Open Airflow UI URL Codespaces](src/open_airflow_ui_codespaces.png)
 
-Deploy Your Project to Astronomer
-=================================
+6. Once the Streamlit app is running, you can access it by by clicking on the **Ports** tab and opening the forward URL for port 8501.
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+### Option 2: Use the Astro CLI
 
-Contact
-=======
+Download the [Astro CLI](https://docs.astronomer.io/astro/cli/install-cli) to run Airflow locally in Docker. `astro` is the only package you will need to install.
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+1. Run `git clone -b airflow-3-mars-demo --single-branch https://github.com/astronomer/airflow-3-demos.git && cd airflow-3-demos` on your computer to create a local clone of this repository, and to go into that folder.
+2. Install the Astro CLI by following the steps in the [Astro CLI documentation](https://docs.astronomer.io/astro/cli/install-cli). Docker Desktop/Docker Engine is a prerequisite, but you don't need in-depth Docker knowledge to run Airflow with the Astro CLI.
+3. Run `astro dev init` in your cloned repository.
+4. Run `astro dev start` in your cloned repository.
+5. After your Astro project has started. View the Airflow UI at `localhost:8080`.
+6. View the Streamlit app at `localhost:8501`. NOTE: The Streamlit container can take a few minutes to start up.
