@@ -33,7 +33,7 @@ Run this Airflow project without installing anything locally.
 
     ![Open Airflow UI URL Codespaces](src/open_airflow_ui_codespaces.png)
 
-6. Once the Streamlit app is running, you can access it by by clicking on the **Ports** tab and opening the forward URL for port 8501.
+6. Once the app is running, you can access it by by clicking on the **Ports** tab and opening the forward URL for port 8501.
 
 ### Option 2: Use the Astro CLI
 
