@@ -8,7 +8,10 @@ Project Contents
 
 Your Astro project contains the following files and folders:
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
+- dags: This folder contains the Python files for your Airflow DAGs.
+    - mars_probe: Collects data, pre-processes the data, then pushes to Snowflake DB.
+    - earth_analysis: Grabs data from Snowflake DB and Analyzes it. 
+    - remote_probe: Simulates remote task execution
 - Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
 - include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
 - packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
