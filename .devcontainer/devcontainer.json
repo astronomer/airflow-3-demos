@@ -13,9 +13,10 @@
       ]
     }
   },
-  "postCreateCommand": "curl -sSL https://install.astronomer.io | bash -s -- --cli-version 1.34.0",
+  "postCreateCommand": "curl -sSL https://install.astronomer.io | bash -s -- --cli-version 1.34.0 && astro dev init",
   "remoteUser": "vscode",
   "forwardPorts": [8080],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "workspaceFolder": "/workspace"
+  "workspaceFolder": "/workspace",
+  "onCreateCommand": "astro dev start > /workspace/astro.log 2>&1 &"
 }
