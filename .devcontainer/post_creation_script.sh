@@ -1,1 +1,1 @@
-astro dev start -n --wait 5m
+astro dev init && astro dev start
