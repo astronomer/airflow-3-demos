@@ -14,7 +14,6 @@
     }
   },
   "postCreateCommand": "curl -sSL https://install.astronomer.io | bash -s -- --cli-version 1.34.0",
-  "initializeCommand": "astro dev init && astro dev start",
   "remoteUser": "vscode",
   "forwardPorts": [8080],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
