@@ -31,7 +31,7 @@ Run this Airflow project without installing anything locally.
 
     ![Fork repo and create a Codespaces project](src/fork_and_codespaces.png)
 3. Run this command in the Codespaces terminal: `bash ./.devcontainer/post_creation_script.sh`.
-4. The Astro CLI will automatically start up all necessary Airflow components as well as the Streamlit app. This can take a few minutes. 
+4. The Astro CLI will automatically start up all necessary Airflow components. This can take a few minutes. 
 5. Once the Airflow project has started, access the Airflow UI by clicking on the **Ports** tab and opening the forward URL for port 8080.
 
     ![Open Airflow UI URL Codespaces](src/open_airflow_ui_codespaces.png)
