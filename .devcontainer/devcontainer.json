@@ -1,21 +1,9 @@
 {
-  "name": "Airflow 3.0 with Astro CLI",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    }
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python"
-      ]
-    }
-  },
-  "postCreateCommand": "curl -sSL install.astronomer.io | sudo bash -s -- v1.34.0",
-  "remoteUser": "vscode",
-  "forwardPorts": [8080],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "workspaceFolder": "/workspace"
-}
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "features": {
+        "ghcr.io/astronomer/devcontainer-features/astro-cli:1": {
+          "version": "v1.34.0"
+        }
+    },
+    "forwardPorts": [8080]
+  }
