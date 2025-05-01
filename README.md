@@ -30,13 +30,14 @@ Run this Airflow project without installing anything locally.
 2. Create a new GitHub Codespaces project on your fork. Make sure it uses at least 4 cores!
 
     ![Fork repo and create a Codespaces project](src/fork_and_codespaces.png)
-3. Run this command in the Codespaces terminal: `bash ./.devcontainer/post_creation_script.sh`.
-4. The Astro CLI will automatically start up all necessary Airflow components. This can take a few minutes. 
-5. Once the Airflow project has started, access the Airflow UI by clicking on the **Ports** tab and opening the forward URL for port 8080.
+3. Run this command in the Codespaces terminal: `astro dev init`
+4. Run this command in the Codespaces terminal: `astro dev start`
+5. The Astro CLI will automatically start up all necessary Airflow components. This can take a few minutes. 
+6. Once the Airflow project has started, access the Airflow UI by clicking on the **Ports** tab and opening the forward URL for port 8080.
 
     ![Open Airflow UI URL Codespaces](src/open_airflow_ui_codespaces.png)
 
-6. Once the app is running, you can access it by by clicking on the **Ports** tab and opening the forward URL for port 8501.
+7. Once the app is running, you can access it by by clicking on the **Ports** tab and opening the forward URL for port 8501.
 
 ### Option 2: Use the Astro CLI
 
