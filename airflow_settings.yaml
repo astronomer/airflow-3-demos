@@ -1,0 +1,27 @@
+# This file allows you to configure Airflow Connections, Pools, and Variables in a single place for local development only.
+# NOTE: json dicts can be added to the conn_extra field as yaml key value pairs. See the example below.
+
+# For more information, refer to our docs: https://www.astronomer.io/docs/astro/cli/develop-project#configure-airflow_settingsyaml-local-development-only
+# For questions, reach out to: https://support.astronomer.io
+# For issues create an issue ticket here: https://github.com/astronomer/astro-cli/issues
+
+airflow:
+  connections:
+    - conn_id: snowflake_default
+      conn_type: snowflake
+      conn_host: FY02423-DEVREL.snowflakecomputing.com
+      conn_schema: HUMANS
+      conn_login: *USERNAME*
+      conn_password: *PASSWORD*
+      conn_port:
+      conn_extra:
+        example_extra_field: example-value
+    - conn_id: aws_default
+      conn_type: aws
+      conn_host: 
+      conn_schema: 
+      conn_login: *USERNAME*
+      conn_password: *PASSWORD*
+      conn_port:
+      conn_extra:
+        example_extra_field: example-value

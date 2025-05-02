@@ -1,0 +1,8 @@
+apache-airflow-providers-snowflake==6.2.2
+apache-airflow-providers-common-sql==1.26.0
+apache-airflow-providers-amazon
+apache-airflow-providers-common-messaging
+aiobotocore
+scikit-learn
+numpy
+boto3
