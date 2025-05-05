@@ -6,3 +6,6 @@ aiobotocore
 scikit-learn
 numpy
 boto3
+transformers
+torch
+accelerate

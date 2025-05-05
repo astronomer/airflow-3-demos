@@ -1,0 +1,5 @@
+{
+  "temp": -67,
+  "radiation": "high",
+  "version": "v2"
+}

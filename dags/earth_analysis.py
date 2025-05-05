@@ -5,6 +5,9 @@ from sklearn.ensemble import IsolationForest
 import numpy as np
 import json
 
+# Declare the output asset for downstream triggering
+confirmed_anomaly_asset = Asset("confirmed_anomaly")
+
 @dag(start_date=datetime(2024, 12, 1), schedule=[Asset("preprocess_probe_data")], tags=['earth'])
 def earth_analysis():
 
@@ -14,6 +17,7 @@ def earth_analysis():
         sql = """
             SELECT temperature, radiation, version
             FROM mars_probe_telemetry
+            WHERE temperature IS NOT NULL AND radiation IS NOT NULL
             ORDER BY collected_at DESC
             LIMIT 1
         """
@@ -30,13 +34,13 @@ def earth_analysis():
         print(f"[earth] Received data from Snowflake: {data}")
         return json.dumps(data)
 
-    @task()
+    @task(outlets=[confirmed_anomaly_asset])
     def analyze_data(data):
         print("[earth] Starting analysis of probe data...")
 
         try:
             parsed = json.loads(data)
-            temp = parsed.get("temp", None)
+            temp = parsed.get("temp")
             radiation = parsed.get("radiation", "unknown")
             version = parsed.get("version", "unknown")
             print(f"[earth] Parsed - Temp: {temp}, Radiation: {radiation}, Version: {version}")
@@ -48,20 +52,20 @@ def earth_analysis():
             print("[earth] Missing temperature")
             return "error"
 
-        # Encode categorical radiation levels
+        # Encode radiation levels
         radiation_map = {"low": 0, "medium": 1, "high": 2}
         radiation_val = radiation_map.get(radiation.lower(), 1)
 
-        # Prepare input for the ML model
+        # Prepare input for ML model
         X = np.array([[temp, radiation_val]])
 
-        # Simulate a pre-trained model using sample historical probe data
+        # Simulated model training with historical samples
         dummy_X = np.array([
             [-65, 1],
             [-60, 0],
             [-68, 1],
             [-62, 1],
-            [-80, 2],  # outlier sample
+            [-80, 2],  # outlier
         ])
         model = IsolationForest(contamination=0.1, random_state=42)
         model.fit(dummy_X)
@@ -82,7 +86,6 @@ def earth_analysis():
             "source_version": version
         }
 
-    data = receive_data()
-    analyze_data(data)
+    analyze_data(receive_data())
 
 earth_analysis()

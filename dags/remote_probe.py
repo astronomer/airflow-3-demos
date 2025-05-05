@@ -8,7 +8,7 @@ import os
 import botocore.exceptions
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 
-@dag(start_date=datetime(2024, 12, 1), schedule=None, tags=['remote'])
+@dag(start_date=datetime(2024, 12, 1), schedule="@daily", tags=['remote'])
 def remote_probe():
 
     @task()
