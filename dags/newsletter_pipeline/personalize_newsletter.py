@@ -39,19 +39,38 @@ SYSTEM_PROMPT = (
 
 
 def _get_lat_long(location):
+    """
+    Note that this version of the function caches the geocoding
+    """
     import time
-
+    from airflow.sdk import ObjectStoragePath
     from geopy.geocoders import Nominatim
+    import json
+
+    locations_file = ObjectStoragePath(
+        f"{OBJECT_STORAGE_SYSTEM}://" f"{OBJECT_STORAGE_LOCATIONS_FILE}",
+        conn_id=OBJECT_STORAGE_CONN_ID,
+    )
+    if not locations_file.exists():
+        locations_file.write_text("{}")
+
+    locations_data = json.loads(locations_file.read_text())
+
+    if location in locations_data.keys():
+        return tuple(locations_data[location])
 
     time.sleep(10)
-    geolocator = Nominatim(user_agent="my-newsletter-app-3")
+    geolocator = Nominatim(user_agent="MyApp/1.0 (my_email@example.com)")
 
-    location = geolocator.geocode(location)
+    location_object = geolocator.geocode(location)
 
-    return (
-        float(location.latitude),
-        float(location.longitude),
-    )
+    coordinates = (float(location_object.latitude), float(location_object.longitude))
+
+    locations_data[location] = coordinates
+
+    locations_file.write_text(json.dumps(locations_data))
+
+    return coordinates
 
 
 # Configure the SQS queue trigger
