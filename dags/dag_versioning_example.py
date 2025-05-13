@@ -21,7 +21,7 @@ def dag_versioning_example():
 
     @task
     def t3():
-        pass
+        print("Hello!")
 
     chain(
         # t1(),
