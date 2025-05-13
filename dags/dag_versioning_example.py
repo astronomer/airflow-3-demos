@@ -7,6 +7,7 @@ from include.utils import say_hello
     schedule="@daily",
     start_date=datetime(2025, 1, 1),
     tags=["dag_versioning_example"],
+    default_args={"retries": 2},
 )
 def dag_versioning_example():
 
