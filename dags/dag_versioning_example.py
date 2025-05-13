@@ -18,6 +18,7 @@ def dag_versioning_example():
     @task(retry_delay=5)
     def t2():
         print("Hello from task 2")
+        print("Added print statement to task 2")
 
     # @task
     # def t3():
