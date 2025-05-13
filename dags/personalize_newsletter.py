@@ -62,7 +62,7 @@ SQS_QUEUE_URL = os.getenv(
     "SQS_QUEUE_URL", default="https://sqs.<region>.amazonaws.com/<account>/<queue>"
 )
 
-trigger = MessageQueueTrigger(queue=SQS_QUEUE_URL)
+trigger = MessageQueueTrigger(queue=SQS_QUEUE_URL, waiter_delay=10)
 sqs_asset = Asset(
     "sqs_queue_asset", watchers=[AssetWatcher(name="sqs_watcher", trigger=trigger)]
 )

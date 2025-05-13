@@ -56,7 +56,6 @@ def selected_quotes(context: dict) -> dict:
         "long_q": long_quote,
     }
 
-
 @asset(
     schedule=[selected_quotes],
 )
