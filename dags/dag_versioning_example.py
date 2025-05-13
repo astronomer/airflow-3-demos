@@ -19,14 +19,14 @@ def dag_versioning_example():
     def t2():
         pass
 
-    @task
-    def t3():
-        print("Hello!")
+    # @task
+    # def t3():
+    #     print("Hello!")
 
     chain(
         t1(),
         t2(),
-        t3(),
+        # t3(),
     )
 
 
