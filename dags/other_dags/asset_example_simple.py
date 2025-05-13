@@ -19,6 +19,10 @@ def my_asset_2():
 def my_asset_3():
     pass
 
+@asset(schedule=my_asset_2, tags=["asset_example_simple"])
+def my_asset_4():
+    pass
+
 
 @dag(
     schedule=[Asset("my_asset_3")],
