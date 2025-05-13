@@ -19,7 +19,7 @@ from pendulum import datetime
 @dag(
     start_date=datetime(2025, 4, 1),
     schedule="@daily",
-    tags=["syntax_examples"],
+    tags=["ui_example"],
     params={"fail_task": False},
 )
 def ui_showcase_dag():
