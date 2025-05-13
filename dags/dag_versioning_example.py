@@ -15,7 +15,7 @@ def dag_versioning_example():
     # def t1():
     #     say_hello()
 
-    @task
+    @task(retry_delay=5)
     def t2():
         pass
 
