@@ -18,9 +18,14 @@ def dag_versioning_example():
     def t2():
         pass
 
+    @task
+    def t3():
+        pass
+
     chain(
         t1(),
         t2(),
+        t3(),
     )
 
 
