@@ -5,7 +5,7 @@ from pendulum import datetime
 @dag(
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
-    tags=["backfill_example"],
+    tags=["backfill_example", "webinar_example"],
 )
 def backfill_example_2():
     """
