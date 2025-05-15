@@ -6,6 +6,7 @@ from pendulum import datetime
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     tags=["backfill_example", "webinar_example"],
+    params={"my_num": 19}
 )
 def backfill_example_1():
     """
@@ -13,8 +14,8 @@ def backfill_example_1():
     """
 
     @task
-    def t1():
-        print("Task 1")
+    def t1(**context):
+        print(context["params"]["my_num"])
 
     @task
     def t2():
