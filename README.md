@@ -23,7 +23,7 @@ The [.env_example](.env_example) file contains the configuration to set up a Git
 
 ## Learn more:
 
-You can learn more about the new features in our [Learn guides](https://www.astronomer.io/docs/learn/):
+You can learn more about the new features in the [Practical Guide to Apache Airflow 3 ebook](https://www.astronomer.io/ebooks/practical-guide-to-apache-airflow-3/) and our [Learn guides](https://www.astronomer.io/docs/learn/):
 
 - [DAG versioning and DAG bundles](https://www.astronomer.io/docs/learn/airflow-dag-versioning)
 - [Backfills](https://www.astronomer.io/docs/learn/rerunning-dags/#backfill)
