@@ -49,11 +49,11 @@ def delete_dag(
 
 
 if __name__ == "__main__":
-    # delete_dagrun(
-    #     dag_id="dag_in_a_gitdagbundle",
-    #     dag_run_id="manual__2025-05-15T11:23:26.646742+00:00",
-    # )
-
-    delete_dag(
+    delete_dagrun(
         dag_id="dag_in_a_gitdagbundle",
+        dag_run_id="scheduled__2025-05-15T00:00:00+00:00",
     )
+
+    # delete_dag(
+    #     dag_id="dag_in_a_gitdagbundle",
+    # )
