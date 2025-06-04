@@ -1,14 +1,15 @@
-from airflow.sdk import Asset, dag, task
-from datetime import datetime
-import time
 import json
 import random
+import time
+from datetime import datetime, timezone
+
+from airflow.sdk import Asset, dag, task
 
 probe_response_asset = Asset("/tmp/remote_probe_response.json")
 
-@dag(start_date=datetime(2024, 12, 1), schedule=None, tags=['remote'])
-def remote_probe():
 
+@dag(start_date=datetime(2024, 12, 1), schedule=None, tags=["remote"])
+def remote_probe():
     @task()
     def authenticate():
         print("[remote] Authenticating with probe...")
@@ -38,10 +39,10 @@ def remote_probe():
         response = {
             "temperature": random.randint(-80, -60),
             "radiation": random.choice(["low", "medium", "high"]),
-            "timestamp": datetime.utcnow().isoformat(),
-            "raw_payload": "0xffe34abc19"
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "raw_payload": "0xffe34abc19",
         }
-        with open(probe_response_asset.uri, 'w') as f:
+        with open(probe_response_asset.uri, "w") as f:
             json.dump(response, f)
         print(f"[remote] Probe responded with: {response}")
         return response
@@ -54,7 +55,7 @@ def remote_probe():
             "radiation_level": response["radiation"],
             "iso_timestamp": response["timestamp"],
             "payload_checksum": hash(response["raw_payload"]),
-            "probe_id": "MARS_PROBE_7"
+            "probe_id": "MARS_PROBE_7",
         }
         print(f"[remote] Enriched response: {enriched}")
         return enriched
@@ -71,5 +72,6 @@ def remote_probe():
     response = collect_response()
     enriched = enrich_metadata(response)
     log_completion(enriched)
+
 
 remote_probe()

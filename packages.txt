@@ -1,0 +1,3 @@
+git
+gcc
+gcc python3-dev
