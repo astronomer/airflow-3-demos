@@ -18,7 +18,7 @@ def transformed_data(context):
 
     extracted_data = context["ti"].xcom_pull(
         dag_id="extracted_data",
-        task_ids=["extracted_data"],
+        task_ids="extracted_data",
         key="return_value",
         include_prior_dates=True,
     )
@@ -32,7 +32,7 @@ def loaded_data(context):
 
     transformed_data = context["ti"].xcom_pull(
         dag_id="transformed_data",
-        task_ids=["transformed_data"],
+        task_ids="transformed_data",
         key="return_value",
         include_prior_dates=True,
     )

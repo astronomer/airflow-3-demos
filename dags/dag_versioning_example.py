@@ -14,6 +14,7 @@ def dag_versioning_example():
     @task
     def task_1_CHANGE():
         say_hello()
+        print("This is a change to the task_1 task and I also changed the task_id!")
 
     @task(retry_delay=10)
     def task_2_changed_code():
@@ -33,6 +34,7 @@ def dag_versioning_example():
         added_a_task(),
         task_1_CHANGE(),
         task_2_changed_code(),
+        # task_removed_in_later_version(),
         
     )
 
